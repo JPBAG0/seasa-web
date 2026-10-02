@@ -2,8 +2,17 @@
 <html lang="es-MX">
 <head>
 <meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18438312158"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18438312158');
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com https://www.google.com.mx; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com https://www.google.com.mx; connect-src 'self' https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com https://www.google.com.mx https://www.google-analytics.com https://region1.google-analytics.com; frame-src https://td.doubleclick.net https://bid.g.doubleclick.net https://www.googletagmanager.com; font-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>SEASA | Equipamiento y Aforo de Pozos Profundos en Jalisco</title>
 <meta name="description" content="Equipamiento de pozos profundos con bomba sumergible o bombeo solar, y aforos con variador de frecuencia y reporte técnico en PDF. Más de 20 años en Jalisco. Cotización sin costo.">
@@ -440,5 +449,19 @@ footer{background:#0a1740;color:#8ea4cc;padding:34px 0;font-size:.88rem}
 document.getElementById('y').textContent = new Date().getFullYear();
 </script>
 
+<script>
+/* Conversiones de Google Ads: pega aquí las etiquetas cuando las crees */
+var CONV_WHATSAPP = '';   // ej. 'AW-18438312158/AbCdEfGh'
+var CONV_LLAMADA  = '';   // ej. 'AW-18438312158/XyZ12345'
+document.addEventListener('click', function (e) {
+  var a = e.target.closest('a'); if (!a || typeof gtag !== 'function') return;
+  var h = a.getAttribute('href') || '';
+  var tipo = h.indexOf('wa.me') > -1 ? 'whatsapp' : (h.indexOf('tel:') === 0 ? 'llamada' : null);
+  if (!tipo) return;
+  var label = tipo === 'whatsapp' ? CONV_WHATSAPP : CONV_LLAMADA;
+  if (label) gtag('event', 'conversion', { send_to: label, value: 500, currency: 'MXN' });
+  gtag('event', 'clic_' + tipo, { link_url: h });
+});
+</script>
 </body>
 </html>
