@@ -108,7 +108,7 @@
   tl.to("#sarta", { attr: { height: 2063 }, duration: 3.5 }, 3)
     .to("#martillo", { y: 2093, duration: 3.5 }, 3)
     .to("#barreno", { attr: { height: 2100 }, duration: 3.5 }, 3)
-    .to(prof, { m: 240, duration: 3.5, onUpdate: () => ($("#prof").textContent = Math.round(prof.m) + " m") }, 3);
+    .to(prof, { m: 550, duration: 3.5, onUpdate: () => ($("#prof").textContent = Math.round(prof.m) + " m") }, 3);
   camara("fondo", 3, 3.5, "none");
   camara("corte", 6.5, 0.6);
   tl.to("#sarta", { attr: { height: 40 }, duration: 0.5 }, 7).to("#martillo", { y: 0, duration: 0.5 }, 7);
@@ -198,7 +198,7 @@
     [9.9, 13.4, "03 · Equipamiento", "Bomba, motor, columna y cable", "Con nuestra grúa bajamos la bomba sumergible con su motor, la columna y el cable, calculados para la profundidad y el caudal de tu pozo."],
     [13.4, 15.1, "04 · El agua sube", "Hasta el cabezal de descarga", "La bomba empuja el agua por la columna. El nivel baja al nivel dinámico: eso es lo que medimos en un aforo."],
     [15.1, 16.5, "05 · Bombeo solar", "Paneles y variador", "Instalamos paneles, inversor y tableros: el pozo trabaja con el sol, sin recibo de CFE."],
-    [16.5, 18, "05 · Bombeo solar", "La energía baja hasta el motor", "Del panel al variador y por el cable sumergible hasta el motor, a más de 200 m de profundidad."],
+    [16.5, 18, "05 · Bombeo solar", "La energía baja hasta el motor", "Del panel al variador y por el cable sumergible hasta el motor, a más de 450 m de profundidad."],
     [18, 19.8, "06 · Riego", "El agua llega a tu cultivo", "Riego por goteo en tu invernadero, huerta o abrevadero. Del subsuelo a tu cosecha."],
     [19.8, 22.3, "07 · Con el uso", "Un año después", "El agua trae minerales: el ademe y la rejilla se oxidan y se incrustan, y el pozo empieza a dar menos agua."],
     [22.3, 24.8, "08 · Rehabilitación", "Sacamos bomba y motor", "Con la grúa sacamos el equipo para poder limpiar el pozo por dentro."],
