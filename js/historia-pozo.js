@@ -1,0 +1,241 @@
+/* Historia del pozo: perforación DTH → ademe → equipamiento → bombeo solar → riego, con GSAP + ScrollTrigger. */
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = $("#mundo");
+  const escena = $("#historia .escena");
+  const alturaHeader = () => document.querySelector("header").offsetHeight;
+  const sinMovimiento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // la escena queda fija justo debajo del header, con su altura real
+  const ajustarHeader = () => $("#historia").style.setProperty("--hdr", alturaHeader() + "px");
+  ajustarHeader(); addEventListener("resize", ajustarHeader);
+  if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") { $("#historia").classList.add("quieta"); return; }
+
+  /* «Saltar animación»: brinca directo a los servicios sin recorrer la pista */
+  $("#saltar").addEventListener("click", (e) => {
+    e.preventDefault();
+    const destino = $("#servicios").getBoundingClientRect().top + scrollY - alturaHeader();
+    scrollTo({ top: destino, behavior: "instant" });
+  });
+  // decodificar la textura grande del subsuelo antes de que la cámara baje (evita el tirón del primer cuadro)
+  const precarga = new Image(); precarga.src = "/img/pozo/subsuelo.webp"; precarga.decode?.().catch(() => {});
+
+  /* plantas del invernadero (jitomate): tallo, hojas y frutos */
+  const plantas = $("#plantas");
+  const hoja = (x, y, lado, k) => {
+    const r = lado * (18 + (k % 3) * 3);
+    return `<g transform="translate(${x} ${y}) rotate(${lado * (28 + (k % 2) * 14)})">
+        <path d="M0 0L${r} 0" stroke="#356b26" stroke-width="1.6"/>
+        <ellipse cx="${r}" cy="0" rx="8" ry="5" fill="url(#hoja)"/>
+        <ellipse cx="${r * 0.55}" cy="-5" rx="6.5" ry="4" fill="url(#hoja)" transform="rotate(-25 ${r * 0.55} -5)"/>
+        <ellipse cx="${r * 0.55}" cy="5" rx="6.5" ry="4" fill="url(#hoja)" transform="rotate(25 ${r * 0.55} 5)"/>
+        <path d="M${r * 0.5} 0L${r + 6} 0" stroke="#2f5c22" stroke-width=".7" opacity=".7"/></g>`;
+  };
+  const tomate = (x, y, r, verde) =>
+    `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#${verde ? "tomate-verde" : "tomate"})"/>
+     <circle cx="${x - r * 0.35}" cy="${y - r * 0.4}" r="${r * 0.28}" fill="#fff" opacity=".45"/>
+     <path d="M${x - 3} ${y - r}l3 2 3 -2" stroke="#2f6524" stroke-width="1.6" fill="none"/>`;
+  for (let i = 0; i < 7; i++) {
+    const x = 1268 + i * 46, s = i % 2 ? 1 : -1;
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "planta");
+    let html = `<path d="M${x} -150V-2" stroke="#d9c27a" stroke-width="1"/>
+      <path d="M${x} -2C${x - 5 * s} -30 ${x + 6 * s} -60 ${x} -104" stroke="#3d6b2c" stroke-width="3.2" fill="none" stroke-linecap="round"/>`;
+    [-22, -38, -54, -70, -86, -98].forEach((y, k) => (html += hoja(x, y, k % 2 ? 1 : -1, i + k)));
+    html += tomate(x - 8 * s, -30, 6, false) + tomate(x - 2 * s, -24, 5.5, false) + tomate(x + 9 * s, -50, 5.5, i % 3 === 0) + tomate(x + 4 * s, -44, 4.5, true);
+    html += `<g fill="#f4d03f"><circle cx="${x - 6 * s}" cy="-80" r="2.2"/><circle cx="${x - 10 * s}" cy="-84" r="2"/></g>`;
+    g.innerHTML = html;
+    plantas.appendChild(g);
+  }
+
+  if (!window.gsap) return; // sin GSAP se queda el dibujo inicial y la galería funciona
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* cámara: centro (cx, cy) y ancho w en unidades del dibujo. Se anima como números y el viewBox se calcula en cada
+     cuadro con la forma actual de la pantalla; así no hay que recalcular la línea de tiempo al reacomodarse la página.
+     En celular se acerca y deja el objeto arriba del texto. */
+  const camVista = { cx: 800, cy: -230, w: 1900 };
+  const aplicarCam = () => {
+    const a = escena.clientWidth / escena.clientHeight;
+    const ww = a < 0.8 ? camVista.w * 0.62 : camVista.w;
+    const h = ww / a;
+    const sube = a < 0.8 ? h * 0.12 : 0;
+    svg.setAttribute("viewBox", `${(camVista.cx - ww / 2).toFixed(1)} ${(camVista.cy - h / 2 + sube).toFixed(1)} ${ww.toFixed(1)} ${h.toFixed(1)}`);
+  };
+  const cam = (cx, cy, w) => ({ cx, cy, w });
+  const C = {
+    inicio: cam(800, -230, 1900), llega: cam(600, -240, 1300), mastil: cam(660, -300, 1150),
+    perfora0: cam(800, -60, 950), fondo: cam(800, 1980, 950), corte: cam(800, 960, 3900),
+    superficie: cam(800, -180, 1600), bombaFondo: cam(800, 1820, 1100), colTop: cam(800, -120, 1100),
+    solar: cam(420, -170, 1250), todo: cam(800, 820, 3700), riego: cam(1395, -150, 1200), final: cam(980, -190, 1900),
+    cepilloArriba: cam(800, -200, 1100), cepilloFondo: cam(800, 1950, 1100),
+  };
+
+  /* estado inicial: el mástil de la foto gira sobre su pivote trasero (x≈771, y≈-139) y queda sobre el pozo */
+  gsap.set("#perforadora", { x: -2600 });
+  gsap.set(["#grua", "#rehab"], { x: 2700 });
+  gsap.set(["#arenaArriba", "#arenaAbajo"], { transformOrigin: "50% 100%" });
+  gsap.set("#arenaAbajo", { scaleY: 0 });
+  gsap.set("#ademe", { y: -2140, opacity: 0 });
+  gsap.set("#bomba", { y: -1960, opacity: 0 });
+  gsap.set(["#sarta", "#martillo"], { opacity: 0 });
+  gsap.set(".panel", { y: -420, opacity: 0 });
+  gsap.set(".planta", { scaleY: 0.1, transformOrigin: "50% 100%" });
+  Object.assign(camVista, C.inicio);
+  aplicarCam();
+  addEventListener("resize", aplicarCam);
+
+  const prof = { m: 0 };
+  const tl = gsap.timeline({
+    defaults: { ease: "none" },
+    scrollTrigger: { trigger: "#historia", start: () => "top " + alturaHeader() + "px", end: "bottom bottom", scrub: 1 },
+    onUpdate: () => { aplicarCam(); estado(tl.time()); },
+  });
+  const camara = (k, t, d = 0.6, ease = "power2.inOut") => tl.to(camVista, { ...C[k], duration: d, ease }, t);
+
+  // 1 · llega la perforadora y levanta el mástil
+  tl.to("#perforadora", { x: 0, duration: 1, ease: "power2.out" }, 1);
+  camara("llega", 1, 1);
+  camara("mastil", 2, 0.6);
+  // el giro del mástil se escribe como atributo con su pivote fijo (771, -139): con svgOrigin, GSAP
+  // recalculaba el pivote al reacomodarse la página (ScrollTrigger.refresh) y la torre quedaba hundida
+  const GIRO = (g) => ({ attr: { transform: `rotate(${g} 771 -139)` } });
+  tl.fromTo("#mastil", GIRO(0), { ...GIRO(90), duration: 0.6, ease: "power2.inOut" }, 2);
+  camara("perfora0", 2.6, 0.4);
+  tl.to(["#sarta", "#martillo"], { opacity: 1, duration: 0.2 }, 2.6);
+  // 2 · perforación DTH
+  tl.to("#sarta", { attr: { height: 2063 }, duration: 3.5 }, 3)
+    .to("#martillo", { y: 2093, duration: 3.5 }, 3)
+    .to("#barreno", { attr: { height: 2100 }, duration: 3.5 }, 3)
+    .to(prof, { m: 550, duration: 3.5, onUpdate: () => ($("#prof").textContent = Math.round(prof.m) + " m") }, 3);
+  camara("fondo", 3, 3.5, "none");
+  camara("corte", 6.5, 0.6);
+  tl.to("#sarta", { attr: { height: 40 }, duration: 0.5 }, 7).to("#martillo", { y: 0, duration: 0.5 }, 7);
+  // 3 · ademe con rejilla y filtro de grava; el agua sube al nivel estático
+  tl.to(["#sarta", "#martillo"], { opacity: 0, duration: 0.2 }, 7.4)
+    .to("#ademe", { opacity: 1, duration: 0.2 }, 7.4)
+    .to("#ademe", { y: 0, duration: 1.4, ease: "power1.inOut" }, 7.5)
+    .to("#grava", { opacity: 1, duration: 0.5 }, 8.5)
+    .to("#agua-pozo", { attr: { y: 1300, height: 800 }, duration: 0.8 }, 9)
+    .to("#nivel-estatico", { opacity: 1, duration: 0.3 }, 9.5);
+  // se va la perforadora y llega la grúa
+  camara("superficie", 9.9, 0.5);
+  tl.fromTo("#mastil", GIRO(90), { ...GIRO(0), duration: 0.4, immediateRender: false }, 10).to("#perforadora", { x: -2600, duration: 0.6, ease: "power2.in" }, 10.3)
+    .to("#grua", { x: 0, duration: 0.7, ease: "power2.out" }, 10.6);
+  // 4 · bomba, motor, columna y cable
+  tl.to("#bomba", { opacity: 1, duration: 0.2 }, 11.2).to("#bomba", { y: 0, duration: 2, ease: "power1.inOut" }, 11.3);
+  camara("bombaFondo", 11.3, 2, "power1.inOut");
+  // 5 · el agua sube por la columna
+  tl.to("#grua", { x: 2700, duration: 0.6, ease: "power2.in" }, 13.4).to("#cabezal", { opacity: 1, duration: 0.3 }, 13.5)
+    .to("#agua-col", { attr: { y: -30, height: 1730 }, duration: 1.4 }, 13.5)
+    .to("#agua-pozo", { attr: { y: 1520, height: 580 }, duration: 1.4 }, 13.5)
+    .to("#nivel-dinamico", { opacity: 1, duration: 0.3 }, 14.6);
+  camara("colTop", 13.5, 1.4, "none");
+  // 6 · paneles y variador
+  camara("solar", 15.1, 0.6);
+  tl.to(".panel", { y: 0, opacity: 1, duration: 0.5, stagger: 0.18, ease: "back.out(1.3)" }, 15.4)
+    .to("#variador", { opacity: 1, duration: 0.3 }, 16.1);
+  // 7 · energía al motor
+  camara("todo", 16.5, 0.7);
+  tl.to("#energia", { attr: { "stroke-dashoffset": 0 }, duration: 1.2 }, 16.6);
+  // 8 · riego
+  camara("riego", 18, 0.7);
+  tl.to("#tubo-riego", { attr: { "stroke-dashoffset": 0 }, duration: 0.5 }, 18.2)
+    .to(".planta", { scaleY: 1, duration: 0.6, stagger: 0.08, ease: "back.out(1.5)" }, 18.8);
+  // 9 · un año de uso: corre el reloj y el ademe se oxida e incrusta
+  const meses = { m: 0 };
+  camara("todo", 19.8, 0.7);
+  tl.to(meses, { m: 12, duration: 2.2, onUpdate: () => {
+      const m = Math.round(meses.m);
+      $("#meses").textContent = m >= 12 ? "1 año" : m + (m === 1 ? " mes" : " meses");
+    } }, 20)
+    .to("#arenaArriba", { scaleY: 0, duration: 2.2 }, 20)
+    .to("#arenaAbajo", { scaleY: 1, duration: 2.2 }, 20)
+    .to("#oxido", { opacity: 1, duration: 2.2, ease: "power1.in" }, 20);
+  // 10 · la grúa saca bomba y motor
+  camara("superficie", 22.3, 0.6);
+  tl.to("#grua", { x: 0, duration: 0.6, ease: "power2.out" }, 22.3)
+    .to("#cabezal", { opacity: 0, duration: 0.2 }, 22.9)
+    .to("#agua-col", { attr: { y: 1700, height: 0 }, duration: 0.3 }, 22.9)
+    .to("#bomba", { y: -1960, duration: 1.3, ease: "power1.inOut" }, 23)
+    .to("#grua", { x: 2700, duration: 0.5, ease: "power2.in" }, 24.4)
+    .to("#bomba", { opacity: 0, duration: 0.3 }, 24.3);            // el equipo se va con la grúa
+  // 11 · rehabilitadora: el cepillo de cables de acero raspa el ademe y quita el óxido
+  const BAJA = 2380, T0 = 25.5, D = 2;            // el cepillo baja 2380 unidades en D segundos de la línea de tiempo
+  tl.to("#rehab", { x: 0, duration: 0.6, ease: "power2.out" }, 24.8)
+    .to(["#cepillo", "#barrote"], { opacity: 1, duration: 0.2 }, 25.3)
+    .to("#cepillo", { y: BAJA, duration: D }, T0)
+    .to("#barrote", { attr: { height: 8 + BAJA }, duration: D }, T0)
+    // el óxido desaparece justo donde pasa la punta del cepillo (empieza en -318 y entra al ademe en -24)
+    .to(["#oxido-izq", "#oxido-der"], { attr: { y: 2092, height: 0 }, duration: D * (2116 / BAJA) }, T0 + D * (294 / BAJA));
+  camara("cepilloArriba", 24.8, 0.6);
+  camara("cepilloFondo", T0, D, "none");
+  camara("corte", T0 + D, 0.6);
+  tl.to("#cepillo", { y: 0, duration: 1 }, T0 + D + 0.1)
+    .to("#barrote", { attr: { height: 8 }, duration: 1 }, T0 + D + 0.1)
+    .to(["#cepillo", "#barrote"], { opacity: 0, duration: 0.2 }, T0 + D + 1.1)
+    .to("#rehab", { x: 2700, duration: 0.5, ease: "power2.in" }, T0 + D + 1.2);
+  // 12 · la grúa vuelve a bajar bomba y motor; el pozo da agua otra vez
+  camara("superficie", 29, 0.5);
+  tl.to("#grua", { x: 0, duration: 0.6, ease: "power2.out" }, 29)
+    .to("#bomba", { opacity: 1, duration: 0.3 }, 29.3)
+    .to("#bomba", { y: 0, duration: 1.4, ease: "power1.inOut" }, 29.6)
+    .to("#grua", { x: 2700, duration: 0.5, ease: "power2.in" }, 31)
+    .to("#cabezal", { opacity: 1, duration: 0.3 }, 31.1)
+    .to("#agua-col", { attr: { y: -30, height: 1730 }, duration: 0.8 }, 31.1);
+  camara("bombaFondo", 29.6, 1.4, "power1.inOut");
+  camara("colTop", 31, 0.6);
+  camara("final", 31.7, 0.7);
+  tl.to({}, { duration: 0.5 }, 32.4);
+
+  /* capítulos: texto y animaciones continuas */
+  const CAPS = [
+    [0, 1, "SEASA · Pozos profundos", "Del subsuelo a tu cosecha", "Así perforamos y equipamos un pozo, paso a paso. Baja con el scroll."],
+    [1, 3, "01 · Perforación", "Llega la perforadora", "Maquinaria propia: la perforadora se coloca sobre el punto del pozo y levanta el mástil."],
+    [3, 7, "01 · Perforación DTH", "Martillo de fondo y aire comprimido", "El martillo DTH golpea y gira en el fondo para romper la roca; el aire saca el recorte hasta la superficie."],
+    [7, 9.9, "02 · Ademe y filtro", "Tubería de ademe con rejilla", "Bajamos el ademe de acero con rejilla en la zona del acuífero y rellenamos con filtro de grava. El agua sube hasta el nivel estático."],
+    [9.9, 13.4, "03 · Equipamiento", "Bomba, motor, columna y cable", "Con nuestra grúa bajamos la bomba sumergible con su motor, la columna y el cable, calculados para la profundidad y el caudal de tu pozo."],
+    [13.4, 15.1, "04 · El agua sube", "Hasta el cabezal de descarga", "La bomba empuja el agua por la columna. El nivel baja al nivel dinámico: eso es lo que medimos en un aforo."],
+    [15.1, 16.5, "05 · Bombeo solar", "Paneles y variador", "Instalamos paneles, inversor y tableros: el pozo trabaja con el sol, sin recibo de CFE."],
+    [16.5, 18, "05 · Bombeo solar", "La energía baja hasta el motor", "Del panel al variador y por el cable sumergible hasta el motor, a más de 450 m de profundidad."],
+    [18, 19.8, "06 · Riego", "El agua llega a tu cultivo", "Riego por goteo en tu invernadero, huerta o abrevadero. Del subsuelo a tu cosecha."],
+    [19.8, 22.3, "07 · Con el uso", "Un año después", "El agua trae minerales: el ademe y la rejilla se oxidan y se incrustan, y el pozo empieza a dar menos agua."],
+    [22.3, 24.8, "08 · Rehabilitación", "Sacamos bomba y motor", "Con la grúa sacamos el equipo para poder limpiar el pozo por dentro."],
+    [24.8, 28.9, "08 · Rehabilitación", "Cepillo de cables de acero", "La rehabilitadora baja un barrote con cables de acero despeinados que raspan el ademe y la rejilla: quitan el óxido y las incrustaciones."],
+    [28.9, 99, "09 · Como nuevo", "El pozo vuelve a dar agua", "Volvemos a bajar bomba y motor con la grúa. Rehabilitar sale mucho más barato que perforar un pozo nuevo."],
+  ];
+  let capActual = -1, tCap = 0;
+  function estado(t) {
+    svg.classList.toggle("perforando", t > 3 && t < 6.5);
+    const sinEquipo = t > 22.8 && t < 31.3;          // bomba fuera del pozo durante la rehabilitación
+    const bombea = t > 14.9 && !sinEquipo, energia = t > 17.6 && !sinEquipo, riega = t > 18.6 && !sinEquipo;
+    svg.classList.toggle("bombeando", bombea);
+    svg.classList.toggle("energia", energia);
+    svg.classList.toggle("regando", riega);
+    svg.classList.toggle("cepillando", t > 25.5 && t < 28.6);
+    gsap.set("#flujo-col", { opacity: bombea ? 1 : 0 });
+    gsap.set("#flujo-energia", { opacity: energia ? 1 : 0 });
+    gsap.set("#energia", { opacity: sinEquipo ? 0 : 1 });          // sin motor no hay cable dentro del pozo
+    gsap.set("#flujo-riego", { opacity: riega ? 1 : 0 });
+    $("#reloj").classList.toggle("on", t > 19.9 && t < 22.6);
+    $("#medidor").classList.toggle("on", t > 2.9 && t < 7);
+    $("#saltar").hidden = t >= 28.9;
+    const i = CAPS.findIndex(([a, b]) => t >= a && t < b);
+    if (i === capActual || i < 0) return;
+    capActual = i;
+    const [, , n, h, p] = CAPS[i];
+    const c = $("#capitulo");
+    c.classList.add("cambia");
+    clearTimeout(tCap);
+    tCap = setTimeout(() => {
+      $("#capNum").textContent = n; $("#capTit").textContent = h; $("#capTxt").textContent = p;
+      c.classList.remove("cambia");
+    }, 240);
+  }
+
+  /* sin animaciones: estado final */
+  if (sinMovimiento) { $("#historia").classList.add("quieta"); $("#saltar").hidden = true; tl.scrollTrigger.kill(); tl.progress(1); estado(99); return; }
+  estado(0);
+
+})();
