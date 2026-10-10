@@ -65,12 +65,15 @@
     perfora0: cam(800, -60, 950), fondo: cam(800, 1980, 950), corte: cam(800, 960, 3900),
     superficie: cam(800, -180, 1600), bombaFondo: cam(800, 1820, 1100), colTop: cam(800, -120, 1100),
     solar: cam(420, -170, 1250), todo: cam(800, 820, 3700), riego: cam(1395, -150, 1200), final: cam(980, -190, 1900),
+    cepilloArriba: cam(800, -200, 1100), cepilloFondo: cam(800, 1950, 1100),
   };
 
   /* estado inicial: el mástil de la foto gira sobre su pivote trasero (x≈771, y≈-139) y queda sobre el pozo */
   gsap.set("#perforadora", { x: -2600 });
   gsap.set("#mastil", { rotation: 0, svgOrigin: "771 -139" });
-  gsap.set("#grua", { x: 2700 });
+  gsap.set(["#grua", "#rehab"], { x: 2700 });
+  gsap.set(["#arenaArriba", "#arenaAbajo"], { transformOrigin: "50% 100%" });
+  gsap.set("#arenaAbajo", { scaleY: 0 });
   gsap.set("#ademe", { y: -2140, opacity: 0 });
   gsap.set("#bomba", { y: -1960, opacity: 0 });
   gsap.set(["#sarta", "#martillo"], { opacity: 0 });
@@ -132,44 +135,94 @@
   camara("riego", 18, 0.7);
   tl.to("#tubo-riego", { attr: { "stroke-dashoffset": 0 }, duration: 0.5 }, 18.2)
     .to(".planta", { scaleY: 1, duration: 0.6, stagger: 0.08, ease: "back.out(1.5)" }, 18.8);
-  camara("final", 19.6, 0.6);
-  tl.to({}, { duration: 0.4 }, 20.2);
+  // 9 · un año de uso: corre el reloj y el ademe se oxida e incrusta
+  const meses = { m: 0 };
+  camara("todo", 19.8, 0.7);
+  tl.to(meses, { m: 12, duration: 2.2, onUpdate: () => {
+      const m = Math.round(meses.m);
+      $("#meses").textContent = m >= 12 ? "1 año" : m + (m === 1 ? " mes" : " meses");
+    } }, 20)
+    .to("#arenaArriba", { scaleY: 0, duration: 2.2 }, 20)
+    .to("#arenaAbajo", { scaleY: 1, duration: 2.2 }, 20)
+    .to("#oxido", { opacity: 1, duration: 2.2, ease: "power1.in" }, 20);
+  // 10 · la grúa saca bomba y motor
+  camara("superficie", 22.3, 0.6);
+  tl.to("#grua", { x: 0, duration: 0.6, ease: "power2.out" }, 22.3)
+    .to("#cabezal", { opacity: 0, duration: 0.2 }, 22.9)
+    .to("#agua-col", { attr: { y: 1700, height: 0 }, duration: 0.3 }, 22.9)
+    .to("#bomba", { y: -1960, duration: 1.3, ease: "power1.inOut" }, 23)
+    .to("#grua", { x: 2700, duration: 0.5, ease: "power2.in" }, 24.4)
+    .to("#bomba", { opacity: 0, duration: 0.3 }, 24.3);            // el equipo se va con la grúa
+  // 11 · rehabilitadora: el cepillo de cables de acero raspa el ademe y quita el óxido
+  const BAJA = 2380, T0 = 25.5, D = 2;            // el cepillo baja 2380 unidades en D segundos de la línea de tiempo
+  tl.to("#rehab", { x: 0, duration: 0.6, ease: "power2.out" }, 24.8)
+    .to(["#cepillo", "#barrote"], { opacity: 1, duration: 0.2 }, 25.3)
+    .to("#cepillo", { y: BAJA, duration: D }, T0)
+    .to("#barrote", { attr: { height: 8 + BAJA }, duration: D }, T0)
+    // el óxido desaparece justo donde pasa la punta del cepillo (empieza en -318 y entra al ademe en -24)
+    .to(["#oxido-izq", "#oxido-der"], { attr: { y: 2092, height: 0 }, duration: D * (2116 / BAJA) }, T0 + D * (294 / BAJA));
+  camara("cepilloArriba", 24.8, 0.6);
+  camara("cepilloFondo", T0, D, "none");
+  camara("corte", T0 + D, 0.6);
+  tl.to("#cepillo", { y: 0, duration: 1 }, T0 + D + 0.1)
+    .to("#barrote", { attr: { height: 8 }, duration: 1 }, T0 + D + 0.1)
+    .to(["#cepillo", "#barrote"], { opacity: 0, duration: 0.2 }, T0 + D + 1.1)
+    .to("#rehab", { x: 2700, duration: 0.5, ease: "power2.in" }, T0 + D + 1.2);
+  // 12 · la grúa vuelve a bajar bomba y motor; el pozo da agua otra vez
+  camara("superficie", 29, 0.5);
+  tl.to("#grua", { x: 0, duration: 0.6, ease: "power2.out" }, 29)
+    .to("#bomba", { opacity: 1, duration: 0.3 }, 29.3)
+    .to("#bomba", { y: 0, duration: 1.4, ease: "power1.inOut" }, 29.6)
+    .to("#grua", { x: 2700, duration: 0.5, ease: "power2.in" }, 31)
+    .to("#cabezal", { opacity: 1, duration: 0.3 }, 31.1)
+    .to("#agua-col", { attr: { y: -30, height: 1730 }, duration: 0.8 }, 31.1);
+  camara("bombaFondo", 29.6, 1.4, "power1.inOut");
+  camara("colTop", 31, 0.6);
+  camara("final", 31.7, 0.7);
+  tl.to({}, { duration: 0.5 }, 32.4);
 
-  /* capítulos: texto, foto real y animaciones continuas */
+  /* capítulos: texto y animaciones continuas */
   const CAPS = [
-    [0, 1, "SEASA · Pozos profundos", "Del subsuelo a tu cosecha", "Así perforamos y equipamos un pozo, paso a paso. Baja con el scroll.", "/img/rehabilitacion.jpeg", "Perforadora en obra"],
-    [1, 3, "01 · Perforación", "Llega la perforadora", "Maquinaria propia: la perforadora se coloca sobre el punto del pozo y levanta el mástil.", "/img/perforacion.jpg", "Perforadora y compresor"],
-    [3, 7, "01 · Perforación DTH", "Martillo de fondo y aire comprimido", "El martillo DTH golpea y gira en el fondo para romper la roca; el aire saca el recorte hasta la superficie.", "/img/pozo/martillo.webp", "Martillo DTH y broca"],
-    [7, 9.9, "02 · Ademe y filtro", "Tubería de ademe con rejilla", "Bajamos el ademe de acero con rejilla en la zona del acuífero y rellenamos con filtro de grava. El agua sube hasta el nivel estático.", "/img/rehabilitacion.jpeg", "Tubería lista para el pozo"],
-    [9.9, 13.4, "03 · Equipamiento", "Bomba, motor, columna y cable", "Con nuestra grúa bajamos la bomba sumergible con su motor, la columna y el cable, calculados para la profundidad y el caudal de tu pozo.", "/img/equipamiento-alto.jpg", "Grúa propia bajando la bomba"],
-    [13.4, 15.1, "04 · El agua sube", "Hasta el cabezal de descarga", "La bomba empuja el agua por la columna. El nivel baja al nivel dinámico: eso es lo que medimos en un aforo.", "/img/aforo-alto.jpg", "Aforo con medidor de caudal"],
-    [15.1, 16.5, "05 · Bombeo solar", "Paneles y variador", "Instalamos paneles, inversor y tableros: el pozo trabaja con el sol, sin recibo de CFE.", "/img/g-solar.jpg", "Pozo con paneles solares"],
-    [16.5, 18, "05 · Bombeo solar", "La energía baja hasta el motor", "Del panel al variador y por el cable sumergible hasta el motor, a más de 200 m de profundidad.", "/img/tablero-solar.jpg", "Inversor y tableros"],
-    [18, 99, "06 · Riego", "El agua llega a tu cultivo", "Riego por goteo en tu invernadero, huerta o abrevadero. Del subsuelo a tu cosecha.", "/img/aforo-alto.jpg", "Agua para la huerta"],
+    [0, 1, "SEASA · Pozos profundos", "Del subsuelo a tu cosecha", "Así perforamos y equipamos un pozo, paso a paso. Baja con el scroll."],
+    [1, 3, "01 · Perforación", "Llega la perforadora", "Maquinaria propia: la perforadora se coloca sobre el punto del pozo y levanta el mástil."],
+    [3, 7, "01 · Perforación DTH", "Martillo de fondo y aire comprimido", "El martillo DTH golpea y gira en el fondo para romper la roca; el aire saca el recorte hasta la superficie."],
+    [7, 9.9, "02 · Ademe y filtro", "Tubería de ademe con rejilla", "Bajamos el ademe de acero con rejilla en la zona del acuífero y rellenamos con filtro de grava. El agua sube hasta el nivel estático."],
+    [9.9, 13.4, "03 · Equipamiento", "Bomba, motor, columna y cable", "Con nuestra grúa bajamos la bomba sumergible con su motor, la columna y el cable, calculados para la profundidad y el caudal de tu pozo."],
+    [13.4, 15.1, "04 · El agua sube", "Hasta el cabezal de descarga", "La bomba empuja el agua por la columna. El nivel baja al nivel dinámico: eso es lo que medimos en un aforo."],
+    [15.1, 16.5, "05 · Bombeo solar", "Paneles y variador", "Instalamos paneles, inversor y tableros: el pozo trabaja con el sol, sin recibo de CFE."],
+    [16.5, 18, "05 · Bombeo solar", "La energía baja hasta el motor", "Del panel al variador y por el cable sumergible hasta el motor, a más de 200 m de profundidad."],
+    [18, 19.8, "06 · Riego", "El agua llega a tu cultivo", "Riego por goteo en tu invernadero, huerta o abrevadero. Del subsuelo a tu cosecha."],
+    [19.8, 22.3, "07 · Con el uso", "Un año después", "El agua trae minerales: el ademe y la rejilla se oxidan y se incrustan, y el pozo empieza a dar menos agua."],
+    [22.3, 24.8, "08 · Rehabilitación", "Sacamos bomba y motor", "Con la grúa sacamos el equipo para poder limpiar el pozo por dentro."],
+    [24.8, 28.9, "08 · Rehabilitación", "Cepillo de cables de acero", "La rehabilitadora baja un barrote con cables de acero despeinados que raspan el ademe y la rejilla: quitan el óxido y las incrustaciones."],
+    [28.9, 99, "09 · Como nuevo", "El pozo vuelve a dar agua", "Volvemos a bajar bomba y motor con la grúa. Rehabilitar sale mucho más barato que perforar un pozo nuevo."],
   ];
   let capActual = -1, tCap = 0;
   function estado(t) {
     svg.classList.toggle("perforando", t > 3 && t < 6.5);
-    svg.classList.toggle("bombeando", t > 14.9);
-    svg.classList.toggle("energia", t > 17.6);
-    svg.classList.toggle("regando", t > 18.6);
-    gsap.set("#flujo-col", { opacity: t > 14.9 ? 1 : 0 });
-    gsap.set("#flujo-energia", { opacity: t > 17.6 ? 1 : 0 });
-    gsap.set("#flujo-riego", { opacity: t > 18.6 ? 1 : 0 });
+    const sinEquipo = t > 22.8 && t < 31.3;          // bomba fuera del pozo durante la rehabilitación
+    const bombea = t > 14.9 && !sinEquipo, energia = t > 17.6 && !sinEquipo, riega = t > 18.6 && !sinEquipo;
+    svg.classList.toggle("bombeando", bombea);
+    svg.classList.toggle("energia", energia);
+    svg.classList.toggle("regando", riega);
+    svg.classList.toggle("cepillando", t > 25.5 && t < 28.6);
+    gsap.set("#flujo-col", { opacity: bombea ? 1 : 0 });
+    gsap.set("#flujo-energia", { opacity: energia ? 1 : 0 });
+    gsap.set("#energia", { opacity: sinEquipo ? 0 : 1 });          // sin motor no hay cable dentro del pozo
+    gsap.set("#flujo-riego", { opacity: riega ? 1 : 0 });
+    $("#reloj").classList.toggle("on", t > 19.9 && t < 22.6);
     $("#medidor").classList.toggle("on", t > 2.9 && t < 7);
-    $("#saltar").hidden = t >= 18;
+    $("#saltar").hidden = t >= 28.9;
     const i = CAPS.findIndex(([a, b]) => t >= a && t < b);
     if (i === capActual || i < 0) return;
     capActual = i;
-    const [, , n, h, p, foto, pie] = CAPS[i];
-    const c = $("#capitulo"), f = $("#campo");
+    const [, , n, h, p] = CAPS[i];
+    const c = $("#capitulo");
     c.classList.add("cambia");
-    f.classList.remove("on");
     clearTimeout(tCap);
     tCap = setTimeout(() => {
       $("#capNum").textContent = n; $("#capTit").textContent = h; $("#capTxt").textContent = p;
-      $("#campoImg").src = foto; $("#campoImg").alt = pie; $("#campoTxt").textContent = pie;
-      c.classList.remove("cambia"); f.classList.add("on");
+      c.classList.remove("cambia");
     }, 240);
   }
 

@@ -241,6 +241,7 @@ footer{background:#0a1740;color:#8ea4cc;padding:34px 0;font-size:.88rem}
             <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2d4a7a"/><stop offset=".5" stop-color="#16294f"/><stop offset="1" stop-color="#22406e"/></linearGradient>
             <linearGradient id="plastico" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".8"/><stop offset="1" stop-color="#e6f1f7" stop-opacity=".45"/></linearGradient>
             <pattern id="t-grava" width="64" height="64" patternUnits="userSpaceOnUse"><image href="/img/pozo/t-grava.webp" width="64" height="64"/></pattern>
+            <pattern id="p-oxido" width="9" height="14" patternUnits="userSpaceOnUse"><rect width="9" height="14" fill="#9a4f1f"/><circle cx="3" cy="4" r="2.4" fill="#c46a2c"/><circle cx="7" cy="10" r="2" fill="#6e3412"/><circle cx="2" cy="12" r="1.4" fill="#d98a4a"/></pattern>
             <pattern id="p-rejilla" width="8" height="12" patternUnits="userSpaceOnUse"><rect width="8" height="12" fill="#a7b1ba"/><rect y="4" width="8" height="2.5" fill="#1b2026"/></pattern>
             <!-- pintura, vidrio, llantas y óxido para las máquinas ilustradas -->
             <linearGradient id="pintura" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0e4c4"/><stop offset=".45" stop-color="#d9c79f"/><stop offset="1" stop-color="#ad9668"/></linearGradient>
@@ -248,6 +249,7 @@ footer{background:#0a1740;color:#8ea4cc;padding:34px 0;font-size:.88rem}
             <linearGradient id="vidrio" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c7dde9"/><stop offset=".5" stop-color="#6f93aa"/><stop offset="1" stop-color="#3d5a6e"/></linearGradient>
             <linearGradient id="oxido" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e5128"/><stop offset=".3" stop-color="#e2a874"/><stop offset=".65" stop-color="#a8622f"/><stop offset="1" stop-color="#5e3418"/></linearGradient>
             <linearGradient id="acero-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d666f"/><stop offset=".35" stop-color="#d3d9de"/><stop offset="1" stop-color="#6f7983"/></linearGradient>
+            <linearGradient id="rojo-grua" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5604f"/><stop offset=".5" stop-color="#b8281b"/><stop offset="1" stop-color="#7a1a12"/></linearGradient>
             <linearGradient id="azul-grua" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4772c4"/><stop offset=".5" stop-color="#1f3f8a"/><stop offset="1" stop-color="#11245a"/></linearGradient>
             <linearGradient id="azul-caja" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f86d8"/><stop offset="1" stop-color="#174b94"/></linearGradient>
             <radialGradient id="llanta" cx=".45" cy=".4" r=".6"><stop offset="0" stop-color="#3b3e44"/><stop offset="1" stop-color="#141518"/></radialGradient>
@@ -274,7 +276,7 @@ footer{background:#0a1740;color:#8ea4cc;padding:34px 0;font-size:.88rem}
   
           <!-- subsuelo (1 m ≈ 8.75 unidades; fondo a 240 m = 2100) -->
           <g id="estratos">
-            <rect x="-2600" y="0" width="6800" height="2350" fill="#5f5040"/>
+            <rect x="-2600" y="0" width="6800" height="6000" fill="#3f362b"/>
             <!-- texturas pre-armadas en una sola imagen: el mosaico con <pattern> se recalculaba en cada cuadro -->
             <image href="/img/pozo/subsuelo.webp" x="-1400" y="0" width="4400" height="2350" preserveAspectRatio="none"/>
             <rect x="-2600" y="0" width="6800" height="2350" fill="url(#profundidad)"/>
@@ -298,6 +300,11 @@ footer{background:#0a1740;color:#8ea4cc;padding:34px 0;font-size:.88rem}
             <rect x="773" y="1350" width="9" height="730" fill="url(#p-rejilla)"/><rect x="818" y="1350" width="9" height="730" fill="url(#p-rejilla)"/>
             <rect x="773" y="2092" width="54" height="8" fill="#5b646d"/>
           </g>
+          <!-- óxido e incrustaciones en el ademe (aparecen con el uso; el cepillo las quita) -->
+          <g id="oxido" opacity="0">
+            <rect id="oxido-izq" x="780" y="-24" width="9" height="2116" fill="url(#p-oxido)"/>
+            <rect id="oxido-der" x="811" y="-24" width="9" height="2116" fill="url(#p-oxido)"/>
+          </g>
           <g id="niveles" font-family="Arial Narrow, -apple-system, Segoe UI, Roboto, sans-serif" font-weight="600" font-size="22" letter-spacing="1">
             <g id="nivel-estatico" opacity="0"><path d="M620 1300H980" stroke="#7fd0f5" stroke-width="3" stroke-dasharray="12 8"/><text x="356" y="1307" fill="#e8f6ff">NIVEL ESTÁTICO · 149 m</text></g>
             <g id="nivel-dinamico" opacity="0"><path d="M620 1520H980" stroke="#ffcf4a" stroke-width="3" stroke-dasharray="12 8"/><text x="350" y="1527" fill="#fff2c4">NIVEL DINÁMICO · 174 m</text></g>
@@ -307,6 +314,14 @@ footer{background:#0a1740;color:#8ea4cc;padding:34px 0;font-size:.88rem}
           <rect id="sarta" x="793" y="-140" width="14" height="40" fill="url(#metal)"/>
           <g id="martillo"><g id="martillo-vibra"><image href="/img/pozo/martillo-cut.webp" x="786" y="-180" width="28" height="187"/></g></g>
   
+          <!-- barrote y cepillo de rehabilitación: barra con agujeros y cables de acero despeinados -->
+          <rect id="barrote" x="796" y="-448" width="8" height="8" fill="url(#metal)" opacity="0"/>
+          <g id="cepillo" opacity="0"><g id="cepillo-vibra">
+            <g fill="none" stroke-linecap="round"><path d="M794.0 -430Q789.0 -430.0 780.7 -429.5" stroke="#aab3bc" stroke-width="0.9"/><path d="M806.0 -430Q813.8 -432.0 820.7 -430.2" stroke="#8e99a3" stroke-width="1.1"/><path d="M794.0 -426Q789.5 -425.0 781.9 -425.7" stroke="#8e99a3" stroke-width="1.1"/><path d="M806.0 -426Q811.7 -428.4 820.1 -425.1" stroke="#d7dde2" stroke-width="0.9"/><path d="M794.0 -422Q788.6 -418.8 782.4 -419.0" stroke="#eef2f5" stroke-width="1.1"/><path d="M806.0 -422Q811.9 -424.5 819.9 -424.4" stroke="#d7dde2" stroke-width="1.3"/><path d="M794.0 -418Q787.7 -417.1 782.2 -416.8" stroke="#d7dde2" stroke-width="1.3"/><path d="M806.0 -418Q812.3 -419.8 818.5 -415.9" stroke="#d7dde2" stroke-width="1.1"/><path d="M794.0 -414Q786.3 -417.7 782.1 -415.7" stroke="#d7dde2" stroke-width="0.9"/><path d="M806.0 -414Q812.0 -409.5 818.3 -410.7" stroke="#8e99a3" stroke-width="1.1"/><path d="M794.0 -410Q789.2 -410.9 782.2 -409.0" stroke="#d7dde2" stroke-width="1.1"/><path d="M806.0 -410Q813.4 -410.4 818.8 -406.3" stroke="#aab3bc" stroke-width="1.3"/><path d="M794.0 -406Q789.2 -409.7 782.1 -409.5" stroke="#aab3bc" stroke-width="1.1"/><path d="M806.0 -406Q813.8 -404.5 819.5 -402.1" stroke="#8e99a3" stroke-width="0.9"/><path d="M794.0 -402Q785.5 -397.9 780.9 -398.1" stroke="#eef2f5" stroke-width="0.9"/><path d="M806.0 -402Q813.6 -401.6 818.3 -402.8" stroke="#d7dde2" stroke-width="0.9"/><path d="M794.0 -398Q785.3 -397.5 778.5 -400.3" stroke="#eef2f5" stroke-width="1.1"/><path d="M806.0 -398Q811.4 -398.9 819.0 -401.4" stroke="#d7dde2" stroke-width="1.3"/><path d="M794.0 -394Q786.0 -393.0 781.0 -393.0" stroke="#aab3bc" stroke-width="1.1"/><path d="M806.0 -394Q813.7 -393.5 818.2 -396.8" stroke="#aab3bc" stroke-width="1.3"/><path d="M794.0 -390Q789.6 -390.9 781.7 -388.1" stroke="#8e99a3" stroke-width="1.1"/><path d="M806.0 -390Q811.4 -393.1 819.9 -390.6" stroke="#eef2f5" stroke-width="0.9"/><path d="M794.0 -386Q786.5 -384.0 779.5 -386.9" stroke="#8e99a3" stroke-width="1.1"/><path d="M806.0 -386Q814.7 -386.5 819.6 -382.6" stroke="#8e99a3" stroke-width="1.3"/><path d="M794.0 -382Q785.2 -383.3 779.9 -381.1" stroke="#aab3bc" stroke-width="1.3"/><path d="M806.0 -382Q811.6 -385.6 817.6 -383.8" stroke="#aab3bc" stroke-width="1.1"/><path d="M794.0 -378Q786.0 -378.5 781.0 -377.4" stroke="#8e99a3" stroke-width="1.1"/><path d="M806.0 -378Q813.4 -379.4 820.1 -376.5" stroke="#d7dde2" stroke-width="0.9"/><path d="M794.0 -374Q786.5 -377.4 780.6 -375.1" stroke="#d7dde2" stroke-width="1.1"/><path d="M806.0 -374Q810.4 -377.3 817.8 -375.5" stroke="#8e99a3" stroke-width="1.3"/><path d="M794.0 -370Q789.3 -370.4 781.0 -373.6" stroke="#aab3bc" stroke-width="1.1"/><path d="M806.0 -370Q814.1 -367.0 818.9 -368.5" stroke="#8e99a3" stroke-width="0.9"/><path d="M794.0 -366Q787.0 -366.4 779.0 -365.4" stroke="#d7dde2" stroke-width="1.3"/><path d="M806.0 -366Q810.4 -369.1 817.8 -369.3" stroke="#8e99a3" stroke-width="1.3"/><path d="M794.0 -362Q788.4 -360.5 781.2 -358.5" stroke="#8e99a3" stroke-width="1.3"/><path d="M806.0 -362Q810.0 -360.4 817.8 -360.0" stroke="#8e99a3" stroke-width="0.9"/><path d="M794.0 -358Q787.8 -356.5 781.6 -356.4" stroke="#8e99a3" stroke-width="1.1"/><path d="M806.0 -358Q812.1 -357.9 821.1 -359.1" stroke="#aab3bc" stroke-width="1.1"/><path d="M794.0 -354Q788.5 -355.3 779.9 -354.5" stroke="#eef2f5" stroke-width="0.9"/><path d="M806.0 -354Q814.0 -354.6 820.0 -351.6" stroke="#aab3bc" stroke-width="1.1"/><path d="M794.0 -350Q786.7 -350.5 781.6 -346.6" stroke="#eef2f5" stroke-width="0.9"/><path d="M806.0 -350Q812.3 -350.2 820.3 -346.4" stroke="#8e99a3" stroke-width="1.1"/><path d="M794.0 -346Q787.4 -346.4 781.4 -348.3" stroke="#8e99a3" stroke-width="1.3"/><path d="M806.0 -346Q814.3 -344.9 818.8 -343.3" stroke="#d7dde2" stroke-width="0.9"/><path d="M794.0 -342Q788.4 -342.9 781.4 -341.1" stroke="#eef2f5" stroke-width="1.1"/><path d="M806.0 -342Q813.6 -342.3 820.1 -341.5" stroke="#aab3bc" stroke-width="0.9"/><path d="M794.0 -338Q787.8 -337.2 779.4 -339.9" stroke="#d7dde2" stroke-width="1.1"/><path d="M806.0 -338Q812.5 -338.6 817.9 -337.7" stroke="#d7dde2" stroke-width="1.3"/><path d="M794.0 -334Q786.9 -331.4 781.7 -331.4" stroke="#8e99a3" stroke-width="1.3"/><path d="M806.0 -334Q812.3 -336.2 820.4 -336.6" stroke="#aab3bc" stroke-width="1.1"/><path d="M794.0 -330Q785.4 -329.7 779.1 -328.4" stroke="#8e99a3" stroke-width="0.9"/><path d="M806.0 -330Q814.2 -334.2 819.3 -332.4" stroke="#eef2f5" stroke-width="1.1"/><path d="M794.0 -326Q786.0 -321.9 781.2 -322.1" stroke="#d7dde2" stroke-width="0.9"/><path d="M806.0 -326Q810.6 -327.6 818.5 -326.9" stroke="#eef2f5" stroke-width="1.1"/></g>
+            <rect x="794" y="-440" width="12" height="122" rx="3" fill="url(#metal)"/><circle cx="800" cy="-426" r="1.6" fill="#3a3d42"/><circle cx="800" cy="-416" r="1.6" fill="#3a3d42"/><circle cx="800" cy="-406" r="1.6" fill="#3a3d42"/><circle cx="800" cy="-396" r="1.6" fill="#3a3d42"/><circle cx="800" cy="-386" r="1.6" fill="#3a3d42"/><circle cx="800" cy="-376" r="1.6" fill="#3a3d42"/><circle cx="800" cy="-366" r="1.6" fill="#3a3d42"/><circle cx="800" cy="-356" r="1.6" fill="#3a3d42"/><circle cx="800" cy="-346" r="1.6" fill="#3a3d42"/><circle cx="800" cy="-336" r="1.6" fill="#3a3d42"/><circle cx="800" cy="-326" r="1.6" fill="#3a3d42"/>
+            <rect x="792" y="-444" width="16" height="8" rx="2" fill="#5b646d"/><path d="M794 -318h12l-6 8Z" fill="#5b646d"/>
+          </g></g>
+
           <!-- columna, bomba, motor y cable -->
           <g id="bomba">
             <rect x="791" y="-30" width="18" height="1730" fill="url(#metal)"/>
@@ -519,10 +534,45 @@ footer{background:#0a1740;color:#8ea4cc;padding:34px 0;font-size:.88rem}
             <rect x="790" y="-472" width="20" height="24" rx="4" fill="#c0392b" stroke="#7a2018" stroke-width="1.5"/>
             <path d="M800 -448v9a6 6 0 1 1 -7 6" stroke="#2a2c30" stroke-width="3.5" fill="none" stroke-linecap="round"/>
           </g>
+          <!-- rehabilitadora (como la grúa, en rojo) -->
+          <g id="rehab">
+            <ellipse cx="1015" cy="2" rx="190" ry="8" fill="#000" opacity=".28"/>
+            <g transform="translate(1012 -74) rotate(-113.48)"><path d="M0 -9L20 9L40 -9L60 9L80 -9L100 9L120 -9L140 9L160 -9L180 9L200 -9L220 9L240 -9L260 9L280 -9L300 9L320 -9L340 9L360 -9L380 9L400 -9L420 9L440 -9L460 9L480 -9L500 9L520 -9" stroke="#7a1a12" stroke-width="2" fill="none" stroke-linejoin="round"/><rect x="0" y="-12" width="532" height="5" rx="2" fill="url(#rojo-grua)"/><rect x="0" y="7" width="532" height="5" rx="2" fill="url(#rojo-grua)"/></g>
+            <path d="M800 -560L1078 -72" stroke="#1b1d21" stroke-width="2"/>
+            <g>
+              <rect x="842" y="-42" width="336" height="12" fill="#1b1d21"/>
+              <rect x="850" y="-68" width="234" height="28" fill="url(#rojo-grua)" stroke="#5e140d" stroke-width="1.5"/>
+              <path d="M870 -68v28M900 -68v28M930 -68v28M960 -68v28M1050 -68v28" stroke="#5e140d" stroke-width="1.2" opacity=".6"/>
+              
+              <rect x="866" y="-80" width="190" height="6" rx="3" fill="url(#acero-v)"/><rect x="872" y="-87" width="178" height="6" rx="3" fill="url(#acero-v)"/><rect x="850" y="-104" width="6" height="36" fill="#5e140d"/><rect x="1056" y="-104" width="6" height="36" fill="#5e140d"/>
+              <rect x="852" y="-34" width="10" height="30" fill="#6f7983"/><rect x="842" y="-8" width="30" height="7" rx="1" fill="#1b1d21"/>
+              <path d="M1086 -30V-118q0-8 8-8h44l30 42v54Z" fill="url(#rojo-grua)" stroke="#5e140d" stroke-width="1.5"/>
+              <path d="M1102 -116h30l22 30h-52Z" fill="url(#vidrio)" stroke="#5e140d" stroke-width="1.5"/><path d="M1106 -112h9l-6 20h-3Z" fill="#fff" opacity=".3"/>
+              <path d="M1120 -80V-34" stroke="#5e140d" stroke-width="1.2"/><rect x="1128" y="-74" width="9" height="3" rx="1" fill="#5e140d"/>
+              <rect x="1166" y="-64" width="12" height="34" rx="2" fill="#1b1d21"/><rect x="1166" y="-82" width="6" height="10" rx="2" fill="#ffe08a"/>
+              <rect x="992" y="-92" width="40" height="24" rx="3" fill="#5e140d"/>
+              <path d="M1040 -72L925 -300" stroke="url(#acero-v)" stroke-width="9" stroke-linecap="round"/><path d="M1040 -72L990 -170" stroke="#3a3d42" stroke-width="12" stroke-linecap="round"/>
+            </g>
+            <g><circle cx="900" cy="-18" r="19" fill="url(#llanta)"/><circle cx="900" cy="-18" r="16.5" fill="none" stroke="#2e3035" stroke-width="4" stroke-dasharray="4 3.2"/><circle cx="900" cy="-18" r="14.1" fill="#25272b"/><circle cx="900" cy="-18" r="10.6" fill="url(#rin-gris)" stroke="#6e5d3c" stroke-width="1"/><circle cx="911.4" cy="-18.0" r="1.1" fill="#5b4c30"/><circle cx="908.1" cy="-9.9" r="1.1" fill="#5b4c30"/><circle cx="900.0" cy="-6.6" r="1.1" fill="#5b4c30"/><circle cx="891.9" cy="-9.9" r="1.1" fill="#5b4c30"/><circle cx="888.6" cy="-18.0" r="1.1" fill="#5b4c30"/><circle cx="891.9" cy="-26.1" r="1.1" fill="#5b4c30"/><circle cx="900.0" cy="-29.4" r="1.1" fill="#5b4c30"/><circle cx="908.1" cy="-26.1" r="1.1" fill="#5b4c30"/><circle cx="900" cy="-18" r="3.4" fill="#6e5d3c"/><path d="M886.7 -26.6A16.0 16.0 0 0 1 903.8 -33.6" stroke="#fff" stroke-opacity=".12" stroke-width="3" fill="none"/></g><g><circle cx="1015" cy="-18" r="19" fill="url(#llanta)"/><circle cx="1015" cy="-18" r="16.5" fill="none" stroke="#2e3035" stroke-width="4" stroke-dasharray="4 3.2"/><circle cx="1015" cy="-18" r="14.1" fill="#25272b"/><circle cx="1015" cy="-18" r="10.6" fill="url(#rin-gris)" stroke="#6e5d3c" stroke-width="1"/><circle cx="1026.4" cy="-18.0" r="1.1" fill="#5b4c30"/><circle cx="1023.1" cy="-9.9" r="1.1" fill="#5b4c30"/><circle cx="1015.0" cy="-6.6" r="1.1" fill="#5b4c30"/><circle cx="1006.9" cy="-9.9" r="1.1" fill="#5b4c30"/><circle cx="1003.6" cy="-18.0" r="1.1" fill="#5b4c30"/><circle cx="1006.9" cy="-26.1" r="1.1" fill="#5b4c30"/><circle cx="1015.0" cy="-29.4" r="1.1" fill="#5b4c30"/><circle cx="1023.1" cy="-26.1" r="1.1" fill="#5b4c30"/><circle cx="1015" cy="-18" r="3.4" fill="#6e5d3c"/><path d="M1001.7 -26.6A16.0 16.0 0 0 1 1018.8 -33.6" stroke="#fff" stroke-opacity=".12" stroke-width="3" fill="none"/></g><g><circle cx="1140" cy="-18" r="19" fill="url(#llanta)"/><circle cx="1140" cy="-18" r="16.5" fill="none" stroke="#2e3035" stroke-width="4" stroke-dasharray="4 3.2"/><circle cx="1140" cy="-18" r="14.1" fill="#25272b"/><circle cx="1140" cy="-18" r="10.6" fill="url(#rin-gris)" stroke="#6e5d3c" stroke-width="1"/><circle cx="1151.4" cy="-18.0" r="1.1" fill="#5b4c30"/><circle cx="1148.1" cy="-9.9" r="1.1" fill="#5b4c30"/><circle cx="1140.0" cy="-6.6" r="1.1" fill="#5b4c30"/><circle cx="1131.9" cy="-9.9" r="1.1" fill="#5b4c30"/><circle cx="1128.6" cy="-18.0" r="1.1" fill="#5b4c30"/><circle cx="1131.9" cy="-26.1" r="1.1" fill="#5b4c30"/><circle cx="1140.0" cy="-29.4" r="1.1" fill="#5b4c30"/><circle cx="1148.1" cy="-26.1" r="1.1" fill="#5b4c30"/><circle cx="1140" cy="-18" r="3.4" fill="#6e5d3c"/><path d="M1126.7 -26.6A16.0 16.0 0 0 1 1143.8 -33.6" stroke="#fff" stroke-opacity=".12" stroke-width="3" fill="none"/></g>
+            <g transform="translate(990 -74) rotate(-111.27)"><path d="M0 -9L20 9L40 -9L60 9L80 -9L100 9L120 -9L140 9L160 -9L180 9L200 -9L220 9L240 -9L260 9L280 -9L300 9L320 -9L340 9L360 -9L380 9L400 -9L420 9L440 -9L460 9L480 -9L500 9L520 -9" stroke="#ff8a73" stroke-width="2.5" fill="none" stroke-linejoin="round"/><rect x="0" y="-12" width="524" height="5" rx="2" fill="url(#rojo-grua)"/><rect x="0" y="7" width="524" height="5" rx="2" fill="url(#rojo-grua)"/></g>
+            <circle cx="800" cy="-562" r="11" fill="#5e140d"/><circle cx="800" cy="-562" r="4" fill="#9aa5af"/>
+            <path d="M800 -552V-470" stroke="#1b1d21" stroke-width="2.5"/>
+            <rect x="790" y="-472" width="20" height="24" rx="4" fill="#f4b400" stroke="#8a6500" stroke-width="1.5"/>
+            <path d="M800 -448v9a6 6 0 1 1 -7 6" stroke="#2a2c30" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          </g>
         </svg>
     <div class="capitulo" id="capitulo"><small id="capNum">SEASA · Pozos profundos</small><h2 id="capTit">Del subsuelo a tu cosecha</h2><p id="capTxt">Así perforamos y equipamos un pozo, paso a paso. Baja con el scroll.</p><a class="saltar" href="#servicios" id="saltar">Saltar animación ↓</a></div>
+    <div class="reloj" id="reloj" aria-hidden="true">
+      <svg viewBox="0 0 40 64" width="40" height="64">
+        <path d="M6 3H34M6 61H34" stroke="#c9b27a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M9 5C9 22 18 26 18 32C18 38 9 42 9 59H31C31 42 22 38 22 32C22 26 31 22 31 5Z" fill="rgb(255 255 255 / .18)" stroke="#e8f1f8" stroke-width="2"/>
+        <path id="arenaArriba" d="M11 9H29C29 20 21 26 20 31C19 26 11 20 11 9Z" fill="#f0c36a"/>
+        <path id="arenaCae" d="M20 31V56" stroke="#f0c36a" stroke-width="1.6"/>
+        <path id="arenaAbajo" d="M10 58C12 48 18 44 20 44C22 44 28 48 30 58Z" fill="#f0c36a"/>
+      </svg>
+      <div><small>Un año bombeando</small><b id="meses">0 meses</b></div>
+    </div>
     <div class="medidor" id="medidor">Profundidad<b id="prof">0 m</b></div>
-    <figure class="campo" id="campo" aria-live="polite"><img id="campoImg" src="/img/rehabilitacion.jpeg" alt="" width="300" height="225"><figcaption><b>Foto real</b><span id="campoTxt">SEASA en campo</span></figcaption></figure>
   </div>
 </div>
 
