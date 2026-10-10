@@ -18,36 +18,21 @@
     const destino = $("#servicios").getBoundingClientRect().top + scrollY - alturaHeader();
     scrollTo({ top: destino, behavior: "instant" });
   });
-  // decodificar la textura grande del subsuelo antes de que la cámara baje (evita el tirón del primer cuadro)
-  const precarga = new Image(); precarga.src = "/img/pozo/subsuelo.webp"; precarga.decode?.().catch(() => {});
+  // decodificar de antemano el subsuelo y las piezas pre-dibujadas (evita el tirón la primera vez que aparece cada una)
+  ["subsuelo", ...["inv-fondo", "inv-frente", "perf-cuerpo", "mastil", "grua", "rehab", "variador", "cabezal",
+    "panel-0", "panel-1", "panel-2", "panel-3", ...[0, 1, 2, 3, 4, 5, 6].map((i) => "planta-" + i)].map((n) => "raster/" + n)]
+    .forEach((n) => { const im = new Image(); im.src = `/img/pozo/${n}.webp`; im.decode?.().catch(() => {}); });
 
   /* plantas del invernadero (jitomate): tallo, hojas y frutos */
   const plantas = $("#plantas");
-  const hoja = (x, y, lado, k) => {
-    const r = lado * (18 + (k % 3) * 3);
-    return `<g transform="translate(${x} ${y}) rotate(${lado * (28 + (k % 2) * 14)})">
-        <path d="M0 0L${r} 0" stroke="#356b26" stroke-width="1.6"/>
-        <ellipse cx="${r}" cy="0" rx="8" ry="5" fill="url(#hoja)"/>
-        <ellipse cx="${r * 0.55}" cy="-5" rx="6.5" ry="4" fill="url(#hoja)" transform="rotate(-25 ${r * 0.55} -5)"/>
-        <ellipse cx="${r * 0.55}" cy="5" rx="6.5" ry="4" fill="url(#hoja)" transform="rotate(25 ${r * 0.55} 5)"/>
-        <path d="M${r * 0.5} 0L${r + 6} 0" stroke="#2f5c22" stroke-width=".7" opacity=".7"/></g>`;
-  };
-  const tomate = (x, y, r, verde) =>
-    `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#${verde ? "tomate-verde" : "tomate"})"/>
-     <circle cx="${x - r * 0.35}" cy="${y - r * 0.4}" r="${r * 0.28}" fill="#fff" opacity=".45"/>
-     <path d="M${x - 3} ${y - r}l3 2 3 -2" stroke="#2f6524" stroke-width="1.6" fill="none"/>`;
-  for (let i = 0; i < 7; i++) {
-    const x = 1268 + i * 46, s = i % 2 ? 1 : -1;
+  // cada jitomatera es una imagen pre-dibujada (img/pozo/raster): dibujarlas como vector costaba casi un tercio de cada cuadro
+  const CAJAS = [[1226, -158, 81, 167], [1274, -158, 81, 172], [1318, -158, 81, 170], [1366, -158, 81, 170], [1410, -158, 81, 168], [1458, -158, 81, 174], [1502, -158, 81, 167]];
+  CAJAS.forEach(([x, y, w, h], i) => {
     const g = document.createElementNS(NS, "g");
     g.setAttribute("class", "planta");
-    let html = `<path d="M${x} -150V-2" stroke="#d9c27a" stroke-width="1"/>
-      <path d="M${x} -2C${x - 5 * s} -30 ${x + 6 * s} -60 ${x} -104" stroke="#3d6b2c" stroke-width="3.2" fill="none" stroke-linecap="round"/>`;
-    [-22, -38, -54, -70, -86, -98].forEach((y, k) => (html += hoja(x, y, k % 2 ? 1 : -1, i + k)));
-    html += tomate(x - 8 * s, -30, 6, false) + tomate(x - 2 * s, -24, 5.5, false) + tomate(x + 9 * s, -50, 5.5, i % 3 === 0) + tomate(x + 4 * s, -44, 4.5, true);
-    html += `<g fill="#f4d03f"><circle cx="${x - 6 * s}" cy="-80" r="2.2"/><circle cx="${x - 10 * s}" cy="-84" r="2"/></g>`;
-    g.innerHTML = html;
+    g.innerHTML = `<image href="/img/pozo/raster/planta-${i}.webp" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none"/>`;
     plantas.appendChild(g);
-  }
+  });
 
   if (!window.gsap) return; // sin GSAP se queda el dibujo inicial y la galería funciona
   gsap.registerPlugin(ScrollTrigger);
