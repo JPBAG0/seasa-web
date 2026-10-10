@@ -52,14 +52,18 @@
   if (!window.gsap) return; // sin GSAP se queda el dibujo inicial y la galería funciona
   gsap.registerPlugin(ScrollTrigger);
 
-  /* cámara = viewBox. Centro (cx, cy) y ancho w; en celular se acerca y deja el objeto arriba del texto */
-  const cam = (cx, cy, w) => () => {
+  /* cámara: centro (cx, cy) y ancho w en unidades del dibujo. Se anima como números y el viewBox se calcula en cada
+     cuadro con la forma actual de la pantalla; así no hay que recalcular la línea de tiempo al reacomodarse la página.
+     En celular se acerca y deja el objeto arriba del texto. */
+  const camVista = { cx: 800, cy: -230, w: 1900 };
+  const aplicarCam = () => {
     const a = escena.clientWidth / escena.clientHeight;
-    const ww = a < 0.8 ? w * 0.62 : w;
+    const ww = a < 0.8 ? camVista.w * 0.62 : camVista.w;
     const h = ww / a;
     const sube = a < 0.8 ? h * 0.12 : 0;
-    return `${(cx - ww / 2).toFixed(1)} ${(cy - h / 2 + sube).toFixed(1)} ${ww.toFixed(1)} ${h.toFixed(1)}`;
+    svg.setAttribute("viewBox", `${(camVista.cx - ww / 2).toFixed(1)} ${(camVista.cy - h / 2 + sube).toFixed(1)} ${ww.toFixed(1)} ${h.toFixed(1)}`);
   };
+  const cam = (cx, cy, w) => ({ cx, cy, w });
   const C = {
     inicio: cam(800, -230, 1900), llega: cam(600, -240, 1300), mastil: cam(660, -300, 1150),
     perfora0: cam(800, -60, 950), fondo: cam(800, 1980, 950), corte: cam(800, 960, 3900),
@@ -70,7 +74,6 @@
 
   /* estado inicial: el mástil de la foto gira sobre su pivote trasero (x≈771, y≈-139) y queda sobre el pozo */
   gsap.set("#perforadora", { x: -2600 });
-  gsap.set("#mastil", { rotation: 0, svgOrigin: "771 -139" });
   gsap.set(["#grua", "#rehab"], { x: 2700 });
   gsap.set(["#arenaArriba", "#arenaAbajo"], { transformOrigin: "50% 100%" });
   gsap.set("#arenaAbajo", { scaleY: 0 });
@@ -79,21 +82,26 @@
   gsap.set(["#sarta", "#martillo"], { opacity: 0 });
   gsap.set(".panel", { y: -420, opacity: 0 });
   gsap.set(".planta", { scaleY: 0.1, transformOrigin: "50% 100%" });
-  gsap.set(svg, { attr: { viewBox: C.inicio() } });
+  Object.assign(camVista, C.inicio);
+  aplicarCam();
+  addEventListener("resize", aplicarCam);
 
   const prof = { m: 0 };
   const tl = gsap.timeline({
     defaults: { ease: "none" },
-    scrollTrigger: { trigger: "#historia", start: () => "top " + alturaHeader() + "px", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true },
-    onUpdate: () => estado(tl.time()),
+    scrollTrigger: { trigger: "#historia", start: () => "top " + alturaHeader() + "px", end: "bottom bottom", scrub: 1 },
+    onUpdate: () => { aplicarCam(); estado(tl.time()); },
   });
-  const camara = (k, t, d = 0.6, ease = "power2.inOut") => tl.to(svg, { attr: { viewBox: C[k] }, duration: d, ease }, t);
+  const camara = (k, t, d = 0.6, ease = "power2.inOut") => tl.to(camVista, { ...C[k], duration: d, ease }, t);
 
   // 1 · llega la perforadora y levanta el mástil
   tl.to("#perforadora", { x: 0, duration: 1, ease: "power2.out" }, 1);
   camara("llega", 1, 1);
   camara("mastil", 2, 0.6);
-  tl.to("#mastil", { rotation: 90, duration: 0.6, ease: "power2.inOut" }, 2);
+  // el giro del mástil se escribe como atributo con su pivote fijo (771, -139): con svgOrigin, GSAP
+  // recalculaba el pivote al reacomodarse la página (ScrollTrigger.refresh) y la torre quedaba hundida
+  const GIRO = (g) => ({ attr: { transform: `rotate(${g} 771 -139)` } });
+  tl.fromTo("#mastil", GIRO(0), { ...GIRO(90), duration: 0.6, ease: "power2.inOut" }, 2);
   camara("perfora0", 2.6, 0.4);
   tl.to(["#sarta", "#martillo"], { opacity: 1, duration: 0.2 }, 2.6);
   // 2 · perforación DTH
@@ -113,7 +121,7 @@
     .to("#nivel-estatico", { opacity: 1, duration: 0.3 }, 9.5);
   // se va la perforadora y llega la grúa
   camara("superficie", 9.9, 0.5);
-  tl.to("#mastil", { rotation: 0, duration: 0.4 }, 10).to("#perforadora", { x: -2600, duration: 0.6, ease: "power2.in" }, 10.3)
+  tl.fromTo("#mastil", GIRO(90), { ...GIRO(0), duration: 0.4, immediateRender: false }, 10).to("#perforadora", { x: -2600, duration: 0.6, ease: "power2.in" }, 10.3)
     .to("#grua", { x: 0, duration: 0.7, ease: "power2.out" }, 10.6);
   // 4 · bomba, motor, columna y cable
   tl.to("#bomba", { opacity: 1, duration: 0.2 }, 11.2).to("#bomba", { y: 0, duration: 2, ease: "power1.inOut" }, 11.3);

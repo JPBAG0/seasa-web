@@ -41,7 +41,8 @@
   --shadow:0 6px 24px rgba(19,42,107,.12);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:80px}
+/* sin scroll-behavior:smooth: rompe las mediciones de ScrollTrigger; el desplazamiento suave del menú va en JS */
+html{scroll-padding-top:80px}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   color:var(--text);line-height:1.6;background:var(--white);
@@ -799,6 +800,15 @@ footer{background:#0a1740;color:#8ea4cc;padding:34px 0;font-size:.88rem}
 
 <script>
 document.getElementById('y').textContent = new Date().getFullYear();
+/* enlaces internos (#servicios, #aforo…) con desplazamiento suave; respeta «reducir movimiento» */
+document.addEventListener('click', function (e) {
+  var a = e.target.closest('a[href^="#"]'); if (!a || a.id === 'saltar') return;
+  var destino = document.querySelector(a.getAttribute('href')); if (!destino) return;
+  e.preventDefault();
+  var suave = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  destino.scrollIntoView({ behavior: suave ? 'smooth' : 'auto', block: 'start' });
+  history.replaceState(null, '', a.getAttribute('href'));
+});
 </script>
 
 <script>
